@@ -26,6 +26,7 @@
     "chalk": "^4.1.0",
     "cheerio": "^1.0.0-rc.10",
     "child_process": "^1.0.2",
+    "connect-flash": "^0.1.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "form-data": "^4.0.0",
@@ -40,6 +41,8 @@
     "nodemon": "^2.0.7",
     "ssl-express-www": "^3.0.7",
     "qs": "^6.10.1",
+    "lodash": "^4.17.21",
+    "millify": "^5.0.1",
     "nana-api": "^1.1.4",
     "hxz-api": "^1.0.1",
     "nhentai-js": "^4.0.0",
@@ -48,7 +51,8 @@
     "cors": "^2.8.5",
     "minepm": "^1.0.2",
     "urlencode": "^1.1.0",
-    "util": "^0.12.4"
+    "util": "^0.12.4",
+    "ytdl-core": "^4.11.2"
   },
   "homepage": "https://github.com/ultimareall/api-velgrynd#readme"
 }
