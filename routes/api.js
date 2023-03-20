@@ -1,7 +1,7 @@
 __path = process.cwd()
 let express = require('express');
 
-let creator = "Velgrynd"
+let creator = "Sanzy"
 let axios = require('axios')
 let fs = require('fs')
 let fetch = require('node-fetch');
@@ -35,7 +35,7 @@ loghandler = {
     error: {
         status: 404,
         creator: `${creator}`,
-        message: 'An internal error occurred. Please report via WhatsApp wa.me/6288286421519'
+        message: 'An internal error occurred. Please report via WhatsApp wa.me/6281276698054'
     }
 }
 
