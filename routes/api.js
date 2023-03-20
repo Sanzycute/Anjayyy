@@ -4,6 +4,7 @@ let express = require('express');
 let creator = "Sanzy"
 let axios = require('axios')
 let fs = require('fs')
+let sanzy = require("../lib/listdl")
 let fetch = require('node-fetch');
 let router  = express.Router();
 let hxz = require('hxz-api')
@@ -11,6 +12,7 @@ let nhentai = require('nhentai-js');
 let NanaAPI = require('nana-api')
 let nana = new NanaAPI()
 let { tiktok, pinterest, mediafireDl, doujindesu, pinterestdl } = require('../lib/index') 
+let { ytMp4, ytMp3 } = require('../lib/y2mate')
 let options = require(__path + '/lib/options.js');
 let { color, bgcolor } = require(__path + '/lib/color.js');
 let { getBuffer, fetchJson } = require(__path + '/lib/fetcher.js');
@@ -41,21 +43,19 @@ loghandler = {
 
      // Downloader
     router.get('/tiktok', async(req, res) => {
-	      let url = req.query.url
-	      if (!url) return res.json(loghandler.noturl)
-	      let result = await tiktok(url)
-	      try {
-		  res.json({
-			  status: 200,
-			  creator: `${creator}`,
-              note: 'Jangan Di Tembak Bang',
-              result
-          })
-	   } catch(err) {
-		    console.log(err)
-		    res.json(loghandler.error)
-	     }
-    })
+	let url = req.query.url
+	if (!url ) return res.json({ status : false, creator : `${creator}`, message : "[!] masukan parameter url"})  
+    sanzy.musically(url).then(data => {
+    if (!data) return res.json(loghandler.noturl)
+	      res.json({
+	    status: true,
+	    creator: `${creator}`,
+	    result: data
+	})
+}).catch(e => {
+	res.json(loghandler.noturl)
+})
+})
     router.get('/igdl', async(req, res) => {
 	     let url = req.query.url
 	     if (!url) return res.json(loghandler.noturl)
@@ -90,20 +90,31 @@ loghandler = {
       })
      router.get('/youtube', async(req, res) => {
 	     let url = req.query.url
-	     if (!url) return res.json(loghandler.noturl)
-	     let result = await hxz.youtube(url)
-	     try {
+         let mp3 = await ytMp3(url)
+	     let mp4 = await ytMp4(url)
+	     if (!mp4 || !mp3) return res.json(loghandler.noturl)
 	     res.json({
-			  status: 200,
-			  creator: `${creator}`,
-              note: 'Jangan Di Tembak Bang',
-              result
-          })
-	    } catch(err) {
-		      console.log(err)
-		      res.json(loghandler.error)
-	       }
-     })
+			status: true,
+			creator: `${creator}`,
+			result:{ 
+			title: mp4.title,
+			desc: mp4.desc,
+			thum: mp4.thumb,
+			view: mp4.views,
+			channel: mp4.channel,
+			uploadDate: mp4.uploadDate,
+			mp4:{
+				result: mp4.result,
+				size: mp4.size,
+				quality: mp4.quality
+			},
+			mp3:{
+				result: mp3.result,
+				size: mp3.size
+			}
+		 }
+	   })
+})
      router.get('/twitter', async(req, res) => {
 	     let url = req.query.url
 	     if (!url) return res.json(loghandler.noturl)
