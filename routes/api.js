@@ -8,6 +8,8 @@ let sanzy = require("../lib/listdl")
 let fetch = require('node-fetch');
 let router  = express.Router();
 let hxz = require('hxz-api')
+let BitlyClient = require('bitly').BitlyClient
+let TinyURL = require('tinyurl');
 let nhentai = require('nhentai-js');
 let NanaAPI = require('nana-api')
 let nana = new NanaAPI()
@@ -58,36 +60,113 @@ loghandler = {
 })
     router.get('/igdl', async(req, res) => {
 	     let url = req.query.url
-	     if (!url) return res.json(loghandler.noturl)
-	     let result = await hxz.igdl(url)
-	     try {
-	     res.json({
-			  status: 200,
-			  creator: `${creator}`,
-              note: 'Jangan Di Tembak Bang',
-              result
-          })
-	    } catch(err) {
-		      console.log(err)
-		      res.json(loghandler.error)
-	       }
-      })
-     router.get('/mediafire', async(req, res) => {
-	     let url = req.query.url
-	     if (!url) return res.json(loghandler.noturl)
-	     let result = await mediafireDl(url)
-	     try {
-	     res.json({
-			  status: 200,
-			  creator: `${creator}`,
-              note: 'Jangan Di Tembak Bang',
-              result
-          })
-	    } catch(err) {
-		      console.log(err)
-		      res.json(loghandler.error)
-	       }
-      })
+	     if (!url ) return res.json({ status : false, creator : `${creator}`, message : "[!] masukan parameter url"})   
+	     if (!/^((https|http)?:\/\/(?:www\.)?instagram\.com\/(p|tv|reel|stories)\/([^/?#&]+)).*/i.test(url)) return res.json(loghandler.noturl)
+	     sanzy.igdl(url).then(async (data) => {
+		if (!data ) return res.json(loghandler.instgram) 
+		res.json({
+			status: true,
+	        creator: `${creator}`,
+			result: data
+	    })
+	}).catch(e => {
+		res.json(loghandler.noturl)
+    })
+})
+
+router.get('/fbdl', async(req, res) => {
+let url = req.query.url
+if (!url ) return res.json({ status : false, creator : `${creator}`, message : "[!] masukan parameter url"})   
+sanzy.fbdown(url).then(data => {
+if (!data.Normal_video ) return res.json(loghandler.noturl)
+res.json({
+status: true,
+creator: `${creator}`,
+result: data
+})
+})
+.catch(e => {
+res.json(loghandler.error)
+})
+})
+router.get('/soundcloud', async(req, res) => {
+let url = req.query.url
+if (!url ) return res.json({ status : false, creator : `${creator}`, message : "[!] masukan parameter url"})   
+sanzy.soundcloud(url).then(data => {
+if (!data.download ) return res.json(loghandler.noturl)
+res.json({
+status: true,
+creator: `${creator}`,
+result: data
+})
+}).catch(e => {
+res.json(loghandler.error)
+})
+})
+router.get('/mediafire', async(req, res) => {
+let url = req.query.url
+if (!url) return res.json(loghandler.noturl)
+let result = await mediafireDl(url)
+try {
+res.json({
+status: 200,
+creator: `${creator}`,
+note: 'Jangan Di Tembak Bang',
+result
+})
+} catch(err) {
+console.log(err)
+res.json(loghandler.error)
+}
+})
+router.get('/sfilemobi', async(req, res) => {
+	let url = req.query.url
+	if (!url ) return res.json({ status : false, creator : `${creator}`, message : "[!] masukan parameter url"})   
+
+	sanzy.sfilemobi(url).then(async (data) => {
+		if (!data ) return res.json(loghandler.noturl)
+		res.json({
+			status: true,
+	        creator: `${creator}`,
+			result: data
+	    })
+	}).catch(e => {
+		res.json(loghandler.noturl)
+    })
+})
+
+router.get('/zippyshare', async(req, res) => {
+	let url = req.query.url
+	if (!url ) return res.json({ status : false, creator : `${creator}`, message : "[!] masukan parameter url"})   
+
+	sanzy.zippyshare(url).then(async (data) => {
+		if (!data ) return res.json(loghandler.noturl)
+		res.json({
+			status: true,
+	        creator: `${creator}`,
+			result: data
+	    })
+	}).catch(e => {
+		res.json(loghandler.noturl)
+    })
+})
+
+router.get('/telesticker', async(req, res) => {
+	let url = req.query.url
+	if (!url ) return res.json({ status : false, creator : `${creator}`, message : "[!] masukan parameter url"})   
+	if (!url.match(/(https:\/\/t.me\/addstickers\/)/gi)) return res.json(loghandler.noturl)
+	
+	sanzy.telesticker(url).then(data => {
+		res.json({
+			status: true,
+	        creator: `${creator}`,
+			result: data
+		})
+		})
+         .catch(e => {
+	 res.json(loghandler.error)
+})
+})
      router.get('/youtube', async(req, res) => {
 	     let url = req.query.url
          let mp3 = await ytMp3(url)
@@ -147,7 +226,8 @@ loghandler = {
 		      res.json(loghandler.error)
 	       }
       })
-      
+
+
       // Searching
       router.get('/pinterest', async(req, res) => {
 	      let query = req.query.query
